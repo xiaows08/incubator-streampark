@@ -122,7 +122,7 @@ public class AlertTemplate implements Serializable {
     template.setCpMaxFailureInterval(application.getCpMaxFailureInterval());
     template.setTitle(String.format("Notify: %s checkpoint FAILED", application.getJobName()));
     template.setSubject(
-        String.format("StreamPark Alert: %s, checkPoint is Failed", template.getJobName()));
+        String.format("StreamPark Alert: %s checkPoint is Failed", application.getJobName()));
     return template;
   }
 }

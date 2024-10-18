@@ -646,7 +646,10 @@ public class FlinkAppHttpWatcher {
     if (application.isKubernetesModeJob()) {
       return;
     }
-    log.info("[StreamPark][FlinkAppHttpWatcher] add app to tracking,appId:{}", application.getId());
+    log.info(
+        "[StreamPark][FlinkAppHttpWatcher] add app to tracking, appId: {}, appName: {}",
+        application.getId(),
+        application.getJobName());
     WATCHING_APPS.put(application.getId(), application);
     STARTING_CACHE.put(application.getId(), DEFAULT_FLAG_BYTE);
   }
