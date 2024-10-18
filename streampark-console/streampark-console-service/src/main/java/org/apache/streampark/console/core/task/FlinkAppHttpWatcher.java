@@ -191,7 +191,7 @@ public class FlinkAppHttpWatcher {
    *
    * <p><strong>2) Normal information obtain, once every 5 seconds</strong>
    */
-  @Scheduled(fixedDelay = 1000)
+  @Scheduled(fixedDelay = 30000)
   public void start() {
     // The application has been started at the first time, or the front-end is operating start/stop,
     // need to return status info immediately.
@@ -481,7 +481,8 @@ public class FlinkAppHttpWatcher {
         break;
       case CANCELED:
         log.info(
-            "[StreamPark][FlinkAppHttpWatcher] getFromFlinkRestApi, job state {}, stop tracking and delete stopFrom!",
+            "[StreamPark][FlinkAppHttpWatcher] getFromFlinkRestApi, job {} state {}, stop tracking and delete stopFrom!",
+            application.getJobName(),
             currentState.name());
         cleanSavepoint(application);
         application.setState(currentState.getValue());
@@ -508,9 +509,11 @@ public class FlinkAppHttpWatcher {
         break;
       case RESTARTING:
         log.info(
-            "[StreamPark][FlinkAppHttpWatcher] getFromFlinkRestApi, job state {},add to starting",
+            "[StreamPark][FlinkAppHttpWatcher] getFromFlinkRestApi, job {} state {}, add to starting",
+            application.getJobName(),
             currentState.name());
         STARTING_CACHE.put(application.getId(), DEFAULT_FLAG_BYTE);
+        alertService.alert(application, currentState);
         break;
       default:
         application.setState(currentState.getValue());

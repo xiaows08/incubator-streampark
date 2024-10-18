@@ -418,6 +418,7 @@ public class ApplicationServiceImpl extends ServiceImpl<ApplicationMapper, Appli
   @Override
   public void restart(Application application) throws Exception {
     this.cancel(application);
+    TimeUnit.MINUTES.sleep(5);
     this.start(application, false);
   }
 

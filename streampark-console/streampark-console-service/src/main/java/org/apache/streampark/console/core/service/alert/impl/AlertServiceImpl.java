@@ -31,6 +31,7 @@ import org.apache.streampark.console.core.enums.FlinkAppState;
 import org.apache.streampark.console.core.service.alert.AlertConfigService;
 import org.apache.streampark.console.core.service.alert.AlertNotifyService;
 import org.apache.streampark.console.core.service.alert.AlertService;
+import org.apache.streampark.console.system.service.UserService;
 
 import org.apache.flink.api.java.tuple.Tuple2;
 
@@ -49,6 +50,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AlertServiceImpl implements AlertService {
   @Autowired private AlertConfigService alertConfigService;
+  @Autowired private UserService userService;
 
   private final ExecutorService notifyExecutor =
       new ThreadPoolExecutor(
@@ -61,12 +63,18 @@ public class AlertServiceImpl implements AlertService {
 
   @Override
   public void alert(Application application, CheckPointStatus checkPointStatus) {
+    if (application.getUserName() == null) {
+      application.setUserName(userService.getById(application.getUserId()).getNickName());
+    }
     AlertTemplate alertTemplate = AlertTemplate.of(application, checkPointStatus);
     notifyExecutor.submit(() -> alert(application, alertTemplate));
   }
 
   @Override
   public void alert(Application application, FlinkAppState appState) {
+    if (application.getUserName() == null) {
+      application.setUserName(userService.getById(application.getUserId()).getNickName());
+    }
     AlertTemplate alertTemplate = AlertTemplate.of(application, appState);
     notifyExecutor.submit(() -> alert(application, alertTemplate));
   }

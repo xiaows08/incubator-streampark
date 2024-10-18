@@ -35,7 +35,9 @@ import java.util.TimeZone;
 public class AlertTemplate implements Serializable {
   private String title;
   private String subject;
+  private String owner;
   private String jobName;
+  private String jobDesc;
   private String status;
   private Integer type;
   private String startTime;
@@ -52,7 +54,9 @@ public class AlertTemplate implements Serializable {
   private static AlertTemplate of(Application application) {
 
     AlertTemplate template = new AlertTemplate();
+    template.setOwner(application.getUserName());
     template.setJobName(application.getJobName());
+    template.setJobDesc(application.getDescription());
 
     if (ExecutionMode.isYarnMode(application.getExecutionMode())) {
       String format = "%s/proxy/%s/";
