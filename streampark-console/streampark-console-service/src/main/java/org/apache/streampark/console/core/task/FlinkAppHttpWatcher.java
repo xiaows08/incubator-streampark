@@ -191,7 +191,7 @@ public class FlinkAppHttpWatcher {
    *
    * <p><strong>2) Normal information obtain, once every 5 seconds</strong>
    */
-  @Scheduled(fixedDelay = 30000)
+  @Scheduled(fixedDelay = 10000)
   public void start() {
     // The application has been started at the first time, or the front-end is operating start/stop,
     // need to return status info immediately.

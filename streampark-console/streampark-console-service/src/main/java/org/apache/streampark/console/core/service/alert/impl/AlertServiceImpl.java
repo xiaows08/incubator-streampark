@@ -35,11 +35,14 @@ import org.apache.streampark.console.system.service.UserService;
 
 import org.apache.flink.api.java.tuple.Tuple2;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -70,8 +73,20 @@ public class AlertServiceImpl implements AlertService {
     notifyExecutor.submit(() -> alert(application, alertTemplate));
   }
 
+  private final Cache<String, Long> alertCountCache =
+      Caffeine.newBuilder().maximumSize(100).expireAfterWrite(Duration.ofMinutes(30)).build();
+
   @Override
   public void alert(Application application, FlinkAppState appState) {
+    long now = System.currentTimeMillis();
+    String key = application.getId() + appState.name();
+    Long ts = alertCountCache.get(key, key0 -> now);
+    if (now - ts < 60_000 && now - ts > 0) {
+      log.info("Trigger {} alter too often, skip this time", application.getId());
+      return;
+    } else {
+      alertCountCache.put(key, now);
+    }
     if (application.getUserName() == null) {
       application.setUserName(userService.getById(application.getUserId()).getNickName());
     }
